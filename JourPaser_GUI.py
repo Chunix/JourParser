@@ -2,27 +2,45 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askdirectory
 from tkinter.filedialog import askopenfilename
+
 import threading
 import sys
 import paramiko
 from paramiko import SSHClient
+import json
 
-HOST_IP = "10.69.120.33"
-USER_NAME = "root"
-PASSWORD = "rootadmin"
-NOKIA_ID='chrhong'
+CONFIG_FILE = "configure.json"
 
-TARGET='/root/usr/journal/'
+def config_load():
+    try:
+        root_path = sys.path[0]
+
+        file_desc = open(root_path + "/" + CONFIG_FILE, "r")
+        dict_str = json.load(file_desc)
+        file_desc.close()
+    except Exception:
+        dict_str = {}
+        print("File open failed!")
+
+    return dict_str
 
 def journal_paser(progress_bar, source_file):
+    step_keyword = "journal_paser entry"
+
     try:
         print("thread start")
+
+        step_keyword = "Configuration load!"
+        config_dict = config_load()
+        user_name = config_dict["user_name"]
+        user_pwd = config_dict["user_pwd"]
+        host_ip = config_dict["host_ip"]
+        remote_path = config_dict["remote_path"]
 
         local_file = source_file.get().replace('\\', '/').replace('\"', '')
         local_path = local_file[:local_file.rfind('/')+1]
         local_name = local_file[local_file.rfind('/')+1:]
         remote_name = local_name[:local_name.rfind('.')] + '.txt'
-        remote_path = TARGET + NOKIA_ID + '/'
         remote_file = remote_path + remote_name
 
         print(local_file)
@@ -31,46 +49,43 @@ def journal_paser(progress_bar, source_file):
         print(remote_name)
         print(remote_path)
         print(remote_file)
-        #SSH connection
+
+        step_keyword = "SSH connection"
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(hostname=HOST_IP, port=22, username=USER_NAME, password=PASSWORD)
+        ssh.connect(host_ip, 22, user_name, user_pwd)
         print("SSH successfully")
 
         progress_bar.step(10)
 
-        #SFTP connection
-        tport = paramiko.Transport((HOST_IP, 22))
-        tport.connect(username=USER_NAME, password=PASSWORD)
+        step_keyword = "SFTP connection"
+        tport = paramiko.Transport((host_ip, 22))
+        tport.connect(username=user_name, password=user_pwd)
         sftp = paramiko.SFTPClient.from_transport(tport)
         print("SFTP successfully")
 
         progress_bar.step(10)
 
-        files = sftp.listdir(TARGET)
-        if NOKIA_ID not in files:
-            stdin, stdout, stderr = ssh.exec_command("mkdir -p %s" %remote_path)
-            print("Create new user: "+NOKIA_ID)
-            print(stderr.readlines())
-
-        progress_bar.step(10)
-
+        step_keyword = "remove old file"
         stdin, stdout, stderr = ssh.exec_command("rm -f %s/*" %remote_path)
         print(stderr.readlines())
 
         progress_bar.step(10)
 
+        step_keyword = "upload file"
         sftp.put(local_file, remote_path + local_name)
         print('Upload file successfully')
         print('------')
 
         progress_bar.step(20)
 
+        step_keyword = "paser journal"
         stdin, stdout, stderr = ssh.exec_command("journalctl -D " + remote_path + " > " + remote_file)
         print(stderr.readlines())
 
         progress_bar.step(20)
 
+        step_keyword = "download file"
         sftp.get(remote_file, local_path + remote_name)
         print('Download file successfully')
         print('------')
@@ -78,10 +93,10 @@ def journal_paser(progress_bar, source_file):
         ssh.close()
         tport.close()
 
-        progress_bar.step(20)
+        progress_bar.step(30)
 
     except Exception:
-        print("connect error")
+        print(step_keyword + " error!")
 
 def start_journal_thread(progress_bar, source_file):
     threading.Thread(target=journal_paser, args={progress_bar, source_file}).start()

@@ -5,8 +5,15 @@ import json
 
 CONFIG_FILE = "configure.json"
 
+def hang_up_to_watch_errors():
+    print("Stop to see what error occurs!!!")
+    print("You can Exit with 'Ctrl + C'...")
+    while(1):
+        pass
+
 def journal_paser(source_file, config_dict):
     step_keyword = "Read Configuration"
+    ret_bool = True
 
     try:
         print("journal paser start!")
@@ -62,8 +69,13 @@ def journal_paser(source_file, config_dict):
         ssh.close()
         tport.close()
 
+        ret_bool = True
+
     except Exception:
         print(step_keyword + " error!")
+        ret_bool = False
+
+    return ret_bool
 
 def config_load():
     try:
@@ -72,7 +84,7 @@ def config_load():
         file_desc = open(root_path + "/" + CONFIG_FILE, "r")
         dict_str = json.load(file_desc)
         file_desc.close()
-    except Exception:
+    except IOError:
         dict_str = {}
         print("File open failed!")
 
@@ -84,18 +96,15 @@ def main():
         print("argv error!")
 
     source_file = sys.argv[1]
-    if not source_file:
-        raise MyError("")
-    # source_file = "D:/userdata/chrhong/Desktop/system.journal"
+    #debug file
+    #source_file = "D:/userdata/chrhong/Desktop/system.journal"
 
-    try:
-        config_dict = config_load()
-        journal_paser(source_file, config_dict)
-        raise
-    except Exception:
-        print("stop to see what error occurs!!!")
-        while 1:
-            pass
+    config_dict = config_load()
+
+    if source_file and config_dict and journal_paser(source_file, config_dict):
+        return
+
+    hang_up_to_watch_errors()
 
 if __name__ == "__main__":
     main()
