@@ -1,1 +1,0 @@
-python D:\userdata\chrhong\Desktop\Python\JournalPaser\JourPaser.py %*
