@@ -20,7 +20,7 @@ def journal_paser(source_file, config_dict):
     ret_bool = True
 
     try:
-        print("journal paser start!")
+        print("Journal parser start!")
 
         user_name = config_dict["user_name"]
         user_pwd = config_dict["user_pwd"]
@@ -33,12 +33,17 @@ def journal_paser(source_file, config_dict):
         remote_name = local_name[:local_name.rfind('.')] + '.txt'
         remote_file = remote_path + remote_name
 
+        print("===========================")
+        print("Local file, path and name:")
         print(local_file)
         print(local_path)
         print(local_name)
-        print(remote_name)
-        print(remote_path)
+        print("===========================")
+        print("Remote file, path and name:")
         print(remote_file)
+        print(remote_path)
+        print(remote_name)
+        print("===========================")
 
         step_keyword = "SSH connection"
         ssh = paramiko.SSHClient()
@@ -76,9 +81,10 @@ def journal_paser(source_file, config_dict):
         ret_bool = True
 
     except Exception:
-        print(step_keyword + " error!")
+        print("[Error] " + step_keyword)
         ret_bool = False
 
+    print("Journal parser end!")
     return ret_bool
 
 def regist_contextmenu(workpath):
@@ -103,7 +109,7 @@ def regist_contextmenu(workpath):
             winreg.CloseKey(subkey)
 
     except OSError:
-        print("Contextmenu register failed!")
+        print("[Error] Contextmenu register failed!")
         hang_up_to_watch_errors()
         return False
     else:
@@ -129,6 +135,12 @@ def config_load():
 
     if dict_str['context_menu'] == "disable" and regist_contextmenu(root_path):
         dict_str['context_menu'] = "enable"
+
+        if dict_str['remote_path'][-1] != '/':
+            dict_str['remote_path'] = dict_str['remote_path'] + '/'
+            print("[Info] Add '/' at the end of your target path:")
+            print(dict_str['remote_path'])
+
         json_str = json.dumps(dict_str, indent=2)
 
         file_desc = open(config_path, "w")
@@ -142,19 +154,28 @@ def config_load():
 
 def main():
 
-    if len(sys.argv) != 2:
-        print("argv error!")
-        #debug file
-        source_file = "D:/userdata/chrhong/Desktop/system.journal"
-    else:
-        source_file = sys.argv[1].strip("\'\"")
-
     config_dict = config_load()
-
-    if source_file and config_dict and journal_paser(source_file, config_dict):
+    if not config_dict:
+        hang_up_to_watch_errors()
         return
 
-    hang_up_to_watch_errors()
+    if len(sys.argv) < 2:
+        print("[Error] argv error! Use demo file in debug mode!")
+        #debug file
+        source_file = "D:/userdata/chrhong/Desktop/hong guo/system.journal"
+    else:
+        source_file = ' '.join(sys.argv[1:]).strip("\'\"")
+
+    if not source_file:
+        print("[Error] Null path")
+        hang_up_to_watch_errors()
+        return
+
+    if not journal_paser(source_file, config_dict):
+        hang_up_to_watch_errors()
+        return
+
+    return
 
 if __name__ == "__main__":
     main()
