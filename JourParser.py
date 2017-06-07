@@ -93,21 +93,15 @@ def regist_contextmenu(workpath):
     print(workpath)
 
     target_icon = workpath + "\\JourParser.exe"
-    target_cmd = workpath + "\\JourParser.exe '%1'"
+    target_cmd = workpath + "\\JourParser.exe \"%1\""
 
     try:
+        #Not check if it is already exist, since we can overwrite it
         subkey = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT,"*\\shell")
-        try:
-            targetkey = winreg.OpenKey(subkey,"JourParser")
-            winreg.DeleteKey(targetkey,"command")
-        except OSError:
-            print("Key missing, create one.")
-        finally:
-            targetkey = winreg.CreateKey(subkey,"JourParser")
-            winreg.SetValueEx(targetkey, "Icon", 0,  winreg.REG_SZ, target_icon)
-            winreg.SetValue(targetkey, "command",  winreg.REG_SZ, target_cmd)
-            winreg.CloseKey(subkey)
-
+        targetkey = winreg.CreateKey(subkey,"JourParser")
+        winreg.SetValueEx(targetkey, "Icon", 0,  winreg.REG_SZ, target_icon)
+        winreg.SetValue(targetkey, "command",  winreg.REG_SZ, target_cmd)
+        winreg.CloseKey(subkey)
     except OSError:
         print("[Error] Contextmenu register failed!")
         hang_up_to_watch_errors()
