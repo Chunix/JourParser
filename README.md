@@ -1,7 +1,9 @@
 # This is a easy journal log parser tool
 #### Usage Steps:
 1. Config the `configure.json` before your first using
-    * `remote_path`: give a your journal folder on 33. eg: mine is `/root/usr/journal/chrhong/`
+    * `host_ip`: your remote linux server ip
+    * `user_pwd` and `user_name`: your remote linux server ip's username and password
+    * `remote_path`: give a your journal folder on your remote linux server. eg: mine is `/root/usr/journal/chrhong/`
     * `context_menu`: must be `"disable"` before your first using 
 2. Run `JourParser.exe` as administrator first time.
 3. Then you can find a `"JourParser"` item in your contextmenu, click it and you can get a result in the same folder.
