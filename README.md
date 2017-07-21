@@ -12,7 +12,7 @@
 
 #### **Note and Warnings !**
 1. `remote_path` should be paticularly created and only used to put journal file. Because the tool will clean up the folder every time.
-Suggestion is to create your folder here: `/root/usr/journal/**yourNokiaId**/`
+Suggestion is to create your folder here: `/root/usr/journal/yourUniqueName/`
 
 2. `context_menu` once `enable`, mean you already add the `JourParser` to your contextmenu, if you move the `JourParser.exe` to another place, you need to run `"Usage Step1 and Step2"` as above again.
 
