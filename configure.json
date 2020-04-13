@@ -1,7 +1,7 @@
 {
-  "user_name": "root",
-  "host_ip": "xx.xx.xx.xx",
-  "user_pwd": "rootadmin",
-  "remote_path": "/root/usr/journal/chrhong/",
+  "host_ip": "",
+  "user_pwd": "",
+  "remote_path": "",
+  "user_name": "",
   "context_menu": "disable"
 }
