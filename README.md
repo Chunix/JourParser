@@ -6,7 +6,7 @@ The project try to make journal log parsing on windows easily. The basic logic i
 `pyinstaller.exe -i JourParser.ico -F JourParser.py`
 
 #### Protable Installation
-1. Download latest [JourParser.zip](). (Access Code: )
+1. Download latest [JourParser.zip](https://github.com/chrhong/JourParser/releases/tag/v1.0).
 2. Config the `configure.json` before your first using
     * `host_ip`: your remote linux server ip
     * `user_pwd` and `user_name`: your remote linux server ip's username and password
